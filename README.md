@@ -179,12 +179,12 @@ Every problem includes:
 
 1. **Download** or **clone** this repository
 ```bash
-git clone https://github.com/Raghuwrkgit/dsa-solutions.git
+git clone https://github.com/Raghuwrkgit/DSA-Most-Imp-Topics/blob/main/Interview-Ready/DSA-Topics.html
 ```
 
 2. **Open** the HTML file in your browser
 ```bash
-open dsa_solutions.html
+open DSA-Topics.html
 ```
 
 3. **Click any topic** from the sidebar to navigate  
