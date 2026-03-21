@@ -1,0 +1,1879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>60 DSA Problems — Java Solutions</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --accent: #00e5ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --warn: #f59e0b;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --code-bg: #0d1117;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; min-height: 100vh; }
+
+  /* Header */
+  .hero {
+    background: linear-gradient(135deg, #0a0e1a 0%, #0d1b3e 50%, #0a0e1a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 24px 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,229,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800; letter-spacing: -1px; }
+  .hero h1 span { color: var(--accent); }
+  .hero p { color: var(--muted); margin-top: 8px; font-size: 0.95rem; }
+  .stats { display: flex; gap: 24px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 20px; font-size: 0.85rem; }
+  .stat span { color: var(--accent); font-weight: 700; }
+
+  /* Layout */
+  .container { max-width: 1400px; margin: 0 auto; display: flex; min-height: calc(100vh - 160px); }
+
+  /* Sidebar */
+  .sidebar {
+    width: 260px; flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .sidebar-title { padding: 0 16px 12px; font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+  .topic-btn {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 10px 16px;
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-family: 'Syne', sans-serif;
+    font-size: 0.85rem; text-align: left;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  .topic-btn:hover { color: var(--text); background: var(--surface2); }
+  .topic-btn.active { color: var(--accent); border-left-color: var(--accent); background: rgba(0,229,255,0.05); }
+  .topic-btn .num { font-size: 0.7rem; background: var(--surface2); border-radius: 4px; padding: 2px 6px; font-family: 'JetBrains Mono', monospace; }
+  .topic-btn.active .num { background: rgba(0,229,255,0.15); color: var(--accent); }
+
+  /* Main content */
+  .main { flex: 1; padding: 24px; overflow: hidden; }
+
+  .topic-section { display: none; }
+  .topic-section.active { display: block; }
+
+  .section-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 24px; padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-header h2 { font-size: 1.4rem; font-weight: 800; }
+  .badge {
+    background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.3);
+    color: var(--accent); border-radius: 6px; padding: 3px 10px;
+    font-size: 0.75rem; font-weight: 700;
+  }
+
+  /* Problem cards */
+  .problem-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .problem-card:hover { border-color: var(--accent2); }
+
+  .problem-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 18px; cursor: pointer;
+    user-select: none;
+  }
+  .p-num {
+    background: var(--surface2); border-radius: 6px;
+    padding: 3px 9px; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem; color: var(--muted); flex-shrink: 0;
+  }
+  .p-title { font-size: 0.95rem; font-weight: 600; flex: 1; }
+  .diff {
+    font-size: 0.7rem; font-weight: 700; border-radius: 4px;
+    padding: 2px 8px; flex-shrink: 0;
+  }
+  .easy { background: rgba(16,185,129,0.15); color: var(--accent3); }
+  .medium { background: rgba(245,158,11,0.15); color: var(--warn); }
+  .hard { background: rgba(239,68,68,0.15); color: #f87171; }
+
+  .toggle-icon { color: var(--muted); font-size: 0.75rem; flex-shrink: 0; transition: transform 0.2s; }
+  .problem-card.open .toggle-icon { transform: rotate(180deg); }
+
+  .problem-body { display: none; border-top: 1px solid var(--border); }
+  .problem-card.open .problem-body { display: block; }
+
+  .approach {
+    padding: 14px 18px 0;
+    font-size: 0.85rem; color: var(--muted); line-height: 1.6;
+    border-bottom: 1px solid var(--border);
+  }
+  .approach strong { color: var(--accent3); }
+
+  pre {
+    background: var(--code-bg);
+    padding: 18px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.65;
+    color: #e2e8f0;
+    tab-size: 4;
+  }
+  pre::-webkit-scrollbar { height: 4px; }
+  pre::-webkit-scrollbar-track { background: var(--code-bg); }
+  pre::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* Syntax highlighting */
+  .kw { color: #c678dd; }
+  .type { color: #e5c07b; }
+  .fn { color: #61afef; }
+  .str { color: #98c379; }
+  .cmt { color: #5c6370; font-style: italic; }
+  .num-c { color: #d19a66; }
+
+  /* Complexity footer */
+  .complexity {
+    display: flex; gap: 16px; padding: 10px 18px;
+    background: rgba(0,0,0,0.2); font-size: 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .complexity span { color: var(--muted); }
+  .complexity b { color: var(--text); }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .container { display: block; }
+    .main { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>60 DSA Problems — <span>Java Solutions</span></h1>
+  <p>Interview-ready solutions covering all major patterns</p>
+  <div class="stats">
+    <div class="stat"><span>60</span> Problems</div>
+    <div class="stat"><span>9</span> Topics</div>
+    <div class="stat"><span>Java</span> Language</div>
+    <div class="stat"><span>FAANG</span> Ready</div>
+  </div>
+</div>
+
+<div class="container">
+  <nav class="sidebar">
+    <div class="sidebar-title">Topics</div>
+    <button class="topic-btn active" onclick="show('arrays')">📦 Arrays <span class="num">10</span></button>
+    <button class="topic-btn" onclick="show('strings')">🔤 Strings <span class="num">10</span></button>
+    <button class="topic-btn" onclick="show('sliding')">🪟 Sliding Window <span class="num">6</span></button>
+    <button class="topic-btn" onclick="show('linkedlist')">🔗 Linked List <span class="num">8</span></button>
+    <button class="topic-btn" onclick="show('stack')">📚 Stack <span class="num">6</span></button>
+    <button class="topic-btn" onclick="show('bsearch')">🔍 Binary Search <span class="num">5</span></button>
+    <button class="topic-btn" onclick="show('trees')">🌳 Trees <span class="num">8</span></button>
+    <button class="topic-btn" onclick="show('graphs')">🕸 Graphs <span class="num">5</span></button>
+    <button class="topic-btn" onclick="show('dp')">💡 Dynamic Programming <span class="num">2</span></button>
+  </nav>
+
+  <main class="main">
+
+    <!-- ===== ARRAYS ===== -->
+    <div class="topic-section active" id="arrays">
+      <div class="section-header">
+        <h2>Arrays</h2>
+        <span class="badge">10 Problems</span>
+      </div>
+
+      <!-- 1. Two Sum -->
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">01</span>
+          <span class="p-title">Two Sum</span>
+          <span class="diff easy">Easy</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> HashMap to store value→index. For each num, check if (target - num) already in map.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public int</span>[] <span class="fn">twoSum</span>(<span class="type">int</span>[] nums, <span class="type">int</span> target) {
+    <span class="type">Map</span>&lt;<span class="type">Integer</span>, <span class="type">Integer</span>&gt; map = <span class="kw">new</span> <span class="type">HashMap</span>&lt;&gt;();
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">0</span>; i &lt; nums.length; i++) {
+        <span class="type">int</span> complement = target - nums[i];
+        <span class="kw">if</span> (map.<span class="fn">containsKey</span>(complement))
+            <span class="kw">return new int</span>[] { map.<span class="fn">get</span>(complement), i };
+        map.<span class="fn">put</span>(nums[i], i);
+    }
+    <span class="kw">return new int</span>[] {};
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(n)</b></div>
+        </div>
+      </div>
+
+      <!-- 2. 3Sum -->
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">02</span>
+          <span class="p-title">3Sum</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Sort array. Fix one element, use two pointers for the rest. Skip duplicates.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public</span> <span class="type">List</span>&lt;<span class="type">List</span>&lt;<span class="type">Integer</span>&gt;&gt; <span class="fn">threeSum</span>(<span class="type">int</span>[] nums) {
+    <span class="type">List</span>&lt;<span class="type">List</span>&lt;<span class="type">Integer</span>&gt;&gt; res = <span class="kw">new</span> <span class="type">ArrayList</span>&lt;&gt;();
+    <span class="type">Arrays</span>.<span class="fn">sort</span>(nums);
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">0</span>; i &lt; nums.length - <span class="num-c">2</span>; i++) {
+        <span class="kw">if</span> (i &gt; <span class="num-c">0</span> &amp;&amp; nums[i] == nums[i - <span class="num-c">1</span>]) <span class="kw">continue</span>;
+        <span class="type">int</span> l = i + <span class="num-c">1</span>, r = nums.length - <span class="num-c">1</span>;
+        <span class="kw">while</span> (l &lt; r) {
+            <span class="type">int</span> sum = nums[i] + nums[l] + nums[r];
+            <span class="kw">if</span> (sum == <span class="num-c">0</span>) {
+                res.<span class="fn">add</span>(<span class="type">Arrays</span>.<span class="fn">asList</span>(nums[i], nums[l], nums[r]));
+                <span class="kw">while</span> (l &lt; r &amp;&amp; nums[l] == nums[l + <span class="num-c">1</span>]) l++;
+                <span class="kw">while</span> (l &lt; r &amp;&amp; nums[r] == nums[r - <span class="num-c">1</span>]) r--;
+                l++; r--;
+            } <span class="kw">else if</span> (sum &lt; <span class="num-c">0</span>) l++;
+            <span class="kw">else</span> r--;
+        }
+    }
+    <span class="kw">return</span> res;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n²)</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+
+      <!-- 3. Maximum Subarray -->
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">03</span>
+          <span class="p-title">Maximum Subarray (Kadane's Algorithm)</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Track current sum. If it goes negative, reset to 0. Track global max throughout.</div>
+          <pre><span class="kw">public int</span> <span class="fn">maxSubArray</span>(<span class="type">int</span>[] nums) {
+    <span class="type">int</span> maxSum = nums[<span class="num-c">0</span>], curr = nums[<span class="num-c">0</span>];
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">1</span>; i &lt; nums.length; i++) {
+        curr = <span class="type">Math</span>.<span class="fn">max</span>(nums[i], curr + nums[i]);
+        maxSum = <span class="type">Math</span>.<span class="fn">max</span>(maxSum, curr);
+    }
+    <span class="kw">return</span> maxSum;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+
+      <!-- 4. Best Time to Buy and Sell Stock -->
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">04</span>
+          <span class="p-title">Best Time to Buy and Sell Stock</span>
+          <span class="diff easy">Easy</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Track minimum price seen so far. At each step, calculate profit and update max profit.</div>
+          <pre><span class="kw">public int</span> <span class="fn">maxProfit</span>(<span class="type">int</span>[] prices) {
+    <span class="type">int</span> minPrice = <span class="type">Integer</span>.MAX_VALUE, maxProfit = <span class="num-c">0</span>;
+    <span class="kw">for</span> (<span class="type">int</span> price : prices) {
+        minPrice = <span class="type">Math</span>.<span class="fn">min</span>(minPrice, price);
+        maxProfit = <span class="type">Math</span>.<span class="fn">max</span>(maxProfit, price - minPrice);
+    }
+    <span class="kw">return</span> maxProfit;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+
+      <!-- 5. Product of Array Except Self -->
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">05</span>
+          <span class="p-title">Product of Array Except Self</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Two passes — prefix products left-to-right, then suffix products right-to-left. No division needed.</div>
+          <pre><span class="kw">public int</span>[] <span class="fn">productExceptSelf</span>(<span class="type">int</span>[] nums) {
+    <span class="type">int</span> n = nums.length;
+    <span class="type">int</span>[] res = <span class="kw">new int</span>[n];
+    res[<span class="num-c">0</span>] = <span class="num-c">1</span>;
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">1</span>; i &lt; n; i++)
+        res[i] = res[i - <span class="num-c">1</span>] * nums[i - <span class="num-c">1</span>];
+    <span class="type">int</span> suffix = <span class="num-c">1</span>;
+    <span class="kw">for</span> (<span class="type">int</span> i = n - <span class="num-c">1</span>; i &gt;= <span class="num-c">0</span>; i--) {
+        res[i] *= suffix;
+        suffix *= nums[i];
+    }
+    <span class="kw">return</span> res;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(1)</b> (output array excluded)</div>
+        </div>
+      </div>
+
+      <!-- 6. Merge Intervals -->
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">06</span>
+          <span class="p-title">Merge Intervals</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Sort by start time. Iterate and merge if current start ≤ last end.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public int</span>[][] <span class="fn">merge</span>(<span class="type">int</span>[][] intervals) {
+    <span class="type">Arrays</span>.<span class="fn">sort</span>(intervals, (a, b) -&gt; a[<span class="num-c">0</span>] - b[<span class="num-c">0</span>]);
+    <span class="type">List</span>&lt;<span class="type">int</span>[]&gt; res = <span class="kw">new</span> <span class="type">ArrayList</span>&lt;&gt;();
+    <span class="kw">for</span> (<span class="type">int</span>[] interval : intervals) {
+        <span class="kw">if</span> (res.<span class="fn">isEmpty</span>() || res.<span class="fn">get</span>(res.<span class="fn">size</span>() - <span class="num-c">1</span>)[<span class="num-c">1</span>] &lt; interval[<span class="num-c">0</span>])
+            res.<span class="fn">add</span>(interval);
+        <span class="kw">else</span>
+            res.<span class="fn">get</span>(res.<span class="fn">size</span>() - <span class="num-c">1</span>)[<span class="num-c">1</span>] = <span class="type">Math</span>.<span class="fn">max</span>(res.<span class="fn">get</span>(res.<span class="fn">size</span>() - <span class="num-c">1</span>)[<span class="num-c">1</span>], interval[<span class="num-c">1</span>]);
+    }
+    <span class="kw">return</span> res.<span class="fn">toArray</span>(<span class="kw">new int</span>[<span class="num-c">0</span>][]);
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n log n)</b> <span>Space:</span> <b>O(n)</b></div>
+        </div>
+      </div>
+
+      <!-- 7. Insert Interval -->
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">07</span>
+          <span class="p-title">Insert Interval</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> 3 phases: add all before new, merge overlapping ones, add all after.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public int</span>[][] <span class="fn">insert</span>(<span class="type">int</span>[][] intervals, <span class="type">int</span>[] newInterval) {
+    <span class="type">List</span>&lt;<span class="type">int</span>[]&gt; res = <span class="kw">new</span> <span class="type">ArrayList</span>&lt;&gt;();
+    <span class="type">int</span> i = <span class="num-c">0</span>, n = intervals.length;
+    <span class="kw">while</span> (i &lt; n &amp;&amp; intervals[i][<span class="num-c">1</span>] &lt; newInterval[<span class="num-c">0</span>])
+        res.<span class="fn">add</span>(intervals[i++]);
+    <span class="kw">while</span> (i &lt; n &amp;&amp; intervals[i][<span class="num-c">0</span>] &lt;= newInterval[<span class="num-c">1</span>]) {
+        newInterval[<span class="num-c">0</span>] = <span class="type">Math</span>.<span class="fn">min</span>(newInterval[<span class="num-c">0</span>], intervals[i][<span class="num-c">0</span>]);
+        newInterval[<span class="num-c">1</span>] = <span class="type">Math</span>.<span class="fn">max</span>(newInterval[<span class="num-c">1</span>], intervals[i][<span class="num-c">1</span>]);
+        i++;
+    }
+    res.<span class="fn">add</span>(newInterval);
+    <span class="kw">while</span> (i &lt; n) res.<span class="fn">add</span>(intervals[i++]);
+    <span class="kw">return</span> res.<span class="fn">toArray</span>(<span class="kw">new int</span>[<span class="num-c">0</span>][]);
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(n)</b></div>
+        </div>
+      </div>
+
+      <!-- 8. Container With Most Water -->
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">08</span>
+          <span class="p-title">Container With Most Water</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Two pointers from both ends. Move the pointer with the shorter height inward.</div>
+          <pre><span class="kw">public int</span> <span class="fn">maxArea</span>(<span class="type">int</span>[] height) {
+    <span class="type">int</span> l = <span class="num-c">0</span>, r = height.length - <span class="num-c">1</span>, max = <span class="num-c">0</span>;
+    <span class="kw">while</span> (l &lt; r) {
+        max = <span class="type">Math</span>.<span class="fn">max</span>(max, <span class="type">Math</span>.<span class="fn">min</span>(height[l], height[r]) * (r - l));
+        <span class="kw">if</span> (height[l] &lt; height[r]) l++;
+        <span class="kw">else</span> r--;
+    }
+    <span class="kw">return</span> max;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+
+      <!-- 9. Find the Duplicate Number -->
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">09</span>
+          <span class="p-title">Find the Duplicate Number</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Floyd's cycle detection (fast & slow pointers). Treat array values as next pointers.</div>
+          <pre><span class="kw">public int</span> <span class="fn">findDuplicate</span>(<span class="type">int</span>[] nums) {
+    <span class="type">int</span> slow = nums[<span class="num-c">0</span>], fast = nums[<span class="num-c">0</span>];
+    <span class="kw">do</span> {
+        slow = nums[slow];
+        fast = nums[nums[fast]];
+    } <span class="kw">while</span> (slow != fast);
+    slow = nums[<span class="num-c">0</span>];
+    <span class="kw">while</span> (slow != fast) {
+        slow = nums[slow];
+        fast = nums[fast];
+    }
+    <span class="kw">return</span> slow;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+
+      <!-- 10. Missing Number -->
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">10</span>
+          <span class="p-title">Missing Number</span>
+          <span class="diff easy">Easy</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Expected sum of 0..n minus actual sum = missing number.</div>
+          <pre><span class="kw">public int</span> <span class="fn">missingNumber</span>(<span class="type">int</span>[] nums) {
+    <span class="type">int</span> n = nums.length, sum = n * (n + <span class="num-c">1</span>) / <span class="num-c">2</span>;
+    <span class="kw">for</span> (<span class="type">int</span> num : nums) sum -= num;
+    <span class="kw">return</span> sum;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== STRINGS ===== -->
+    <div class="topic-section" id="strings">
+      <div class="section-header">
+        <h2>Strings</h2>
+        <span class="badge">10 Problems</span>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">01</span>
+          <span class="p-title">Longest Substring Without Repeating Characters</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Sliding window with HashMap storing last index of each char. Shrink window on duplicate.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public int</span> <span class="fn">lengthOfLongestSubstring</span>(<span class="type">String</span> s) {
+    <span class="type">Map</span>&lt;<span class="type">Character</span>, <span class="type">Integer</span>&gt; map = <span class="kw">new</span> <span class="type">HashMap</span>&lt;&gt;();
+    <span class="type">int</span> max = <span class="num-c">0</span>, left = <span class="num-c">0</span>;
+    <span class="kw">for</span> (<span class="type">int</span> r = <span class="num-c">0</span>; r &lt; s.<span class="fn">length</span>(); r++) {
+        <span class="type">char</span> c = s.<span class="fn">charAt</span>(r);
+        <span class="kw">if</span> (map.<span class="fn">containsKey</span>(c))
+            left = <span class="type">Math</span>.<span class="fn">max</span>(left, map.<span class="fn">get</span>(c) + <span class="num-c">1</span>);
+        map.<span class="fn">put</span>(c, r);
+        max = <span class="type">Math</span>.<span class="fn">max</span>(max, r - left + <span class="num-c">1</span>);
+    }
+    <span class="kw">return</span> max;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(min(n,m))</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">02</span>
+          <span class="p-title">Longest Palindromic Substring</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Expand around center for each character (and each pair). Track longest found.</div>
+          <pre><span class="kw">public</span> <span class="type">String</span> <span class="fn">longestPalindrome</span>(<span class="type">String</span> s) {
+    <span class="type">int</span> start = <span class="num-c">0</span>, end = <span class="num-c">0</span>;
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">0</span>; i &lt; s.<span class="fn">length</span>(); i++) {
+        <span class="type">int</span> odd = <span class="fn">expand</span>(s, i, i);
+        <span class="type">int</span> even = <span class="fn">expand</span>(s, i, i + <span class="num-c">1</span>);
+        <span class="type">int</span> len = <span class="type">Math</span>.<span class="fn">max</span>(odd, even);
+        <span class="kw">if</span> (len &gt; end - start) {
+            start = i - (len - <span class="num-c">1</span>) / <span class="num-c">2</span>;
+            end = i + len / <span class="num-c">2</span>;
+        }
+    }
+    <span class="kw">return</span> s.<span class="fn">substring</span>(start, end + <span class="num-c">1</span>);
+}
+<span class="kw">private int</span> <span class="fn">expand</span>(<span class="type">String</span> s, <span class="type">int</span> l, <span class="type">int</span> r) {
+    <span class="kw">while</span> (l &gt;= <span class="num-c">0</span> &amp;&amp; r &lt; s.<span class="fn">length</span>() &amp;&amp; s.<span class="fn">charAt</span>(l) == s.<span class="fn">charAt</span>(r)) { l--; r++; }
+    <span class="kw">return</span> r - l - <span class="num-c">1</span>;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n²)</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">03</span>
+          <span class="p-title">Valid Anagram</span>
+          <span class="diff easy">Easy</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Count character frequencies. Use int[26] for lowercase letters.</div>
+          <pre><span class="kw">public boolean</span> <span class="fn">isAnagram</span>(<span class="type">String</span> s, <span class="type">String</span> t) {
+    <span class="kw">if</span> (s.<span class="fn">length</span>() != t.<span class="fn">length</span>()) <span class="kw">return false</span>;
+    <span class="type">int</span>[] count = <span class="kw">new int</span>[<span class="num-c">26</span>];
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">0</span>; i &lt; s.<span class="fn">length</span>(); i++) {
+        count[s.<span class="fn">charAt</span>(i) - <span class="str">'a'</span>]++;
+        count[t.<span class="fn">charAt</span>(i) - <span class="str">'a'</span>]--;
+    }
+    <span class="kw">for</span> (<span class="type">int</span> c : count) <span class="kw">if</span> (c != <span class="num-c">0</span>) <span class="kw">return false</span>;
+    <span class="kw">return true</span>;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">04</span>
+          <span class="p-title">Group Anagrams</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Sort each string → use as key in HashMap. Group same keys together.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public</span> <span class="type">List</span>&lt;<span class="type">List</span>&lt;<span class="type">String</span>&gt;&gt; <span class="fn">groupAnagrams</span>(<span class="type">String</span>[] strs) {
+    <span class="type">Map</span>&lt;<span class="type">String</span>, <span class="type">List</span>&lt;<span class="type">String</span>&gt;&gt; map = <span class="kw">new</span> <span class="type">HashMap</span>&lt;&gt;();
+    <span class="kw">for</span> (<span class="type">String</span> s : strs) {
+        <span class="type">char</span>[] arr = s.<span class="fn">toCharArray</span>();
+        <span class="type">Arrays</span>.<span class="fn">sort</span>(arr);
+        <span class="type">String</span> key = <span class="kw">new</span> <span class="type">String</span>(arr);
+        map.<span class="fn">computeIfAbsent</span>(key, k -&gt; <span class="kw">new</span> <span class="type">ArrayList</span>&lt;&gt;()).<span class="fn">add</span>(s);
+    }
+    <span class="kw">return new</span> <span class="type">ArrayList</span>&lt;&gt;(map.<span class="fn">values</span>());
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n·k log k)</b> <span>Space:</span> <b>O(n)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">05</span>
+          <span class="p-title">Minimum Window Substring</span>
+          <span class="diff hard">Hard</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Sliding window. Expand right until all chars covered, then shrink left. Track minimum window.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public</span> <span class="type">String</span> <span class="fn">minWindow</span>(<span class="type">String</span> s, <span class="type">String</span> t) {
+    <span class="type">Map</span>&lt;<span class="type">Character</span>, <span class="type">Integer</span>&gt; need = <span class="kw">new</span> <span class="type">HashMap</span>&lt;&gt;();
+    <span class="kw">for</span> (<span class="type">char</span> c : t.<span class="fn">toCharArray</span>()) need.<span class="fn">merge</span>(c, <span class="num-c">1</span>, <span class="type">Integer</span>::sum);
+    <span class="type">int</span> have = <span class="num-c">0</span>, required = need.<span class="fn">size</span>(), l = <span class="num-c">0</span>, minLen = <span class="type">Integer</span>.MAX_VALUE, start = <span class="num-c">0</span>;
+    <span class="type">Map</span>&lt;<span class="type">Character</span>, <span class="type">Integer</span>&gt; window = <span class="kw">new</span> <span class="type">HashMap</span>&lt;&gt;();
+    <span class="kw">for</span> (<span class="type">int</span> r = <span class="num-c">0</span>; r &lt; s.<span class="fn">length</span>(); r++) {
+        <span class="type">char</span> c = s.<span class="fn">charAt</span>(r);
+        window.<span class="fn">merge</span>(c, <span class="num-c">1</span>, <span class="type">Integer</span>::sum);
+        <span class="kw">if</span> (need.<span class="fn">containsKey</span>(c) &amp;&amp; window.<span class="fn">get</span>(c).<span class="fn">equals</span>(need.<span class="fn">get</span>(c))) have++;
+        <span class="kw">while</span> (have == required) {
+            <span class="kw">if</span> (r - l + <span class="num-c">1</span> &lt; minLen) { minLen = r - l + <span class="num-c">1</span>; start = l; }
+            <span class="type">char</span> lc = s.<span class="fn">charAt</span>(l++);
+            window.<span class="fn">merge</span>(lc, -<span class="num-c">1</span>, <span class="type">Integer</span>::sum);
+            <span class="kw">if</span> (need.<span class="fn">containsKey</span>(lc) &amp;&amp; window.<span class="fn">get</span>(lc) &lt; need.<span class="fn">get</span>(lc)) have--;
+        }
+    }
+    <span class="kw">return</span> minLen == <span class="type">Integer</span>.MAX_VALUE ? <span class="str">""</span> : s.<span class="fn">substring</span>(start, start + minLen);
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n+m)</b> <span>Space:</span> <b>O(n+m)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">06</span>
+          <span class="p-title">Valid Parentheses</span>
+          <span class="diff easy">Easy</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Stack. Push open brackets, pop and match on close brackets.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public boolean</span> <span class="fn">isValid</span>(<span class="type">String</span> s) {
+    <span class="type">Deque</span>&lt;<span class="type">Character</span>&gt; stack = <span class="kw">new</span> <span class="type">ArrayDeque</span>&lt;&gt;();
+    <span class="kw">for</span> (<span class="type">char</span> c : s.<span class="fn">toCharArray</span>()) {
+        <span class="kw">if</span> (c == <span class="str">'('</span> || c == <span class="str">'['</span> || c == <span class="str">'{'</span>) { stack.<span class="fn">push</span>(c); <span class="kw">continue</span>; }
+        <span class="kw">if</span> (stack.<span class="fn">isEmpty</span>()) <span class="kw">return false</span>;
+        <span class="type">char</span> top = stack.<span class="fn">pop</span>();
+        <span class="kw">if</span> (c == <span class="str">')'</span> &amp;&amp; top != <span class="str">'('</span>) <span class="kw">return false</span>;
+        <span class="kw">if</span> (c == <span class="str">']'</span> &amp;&amp; top != <span class="str">'['</span>) <span class="kw">return false</span>;
+        <span class="kw">if</span> (c == <span class="str">'}'</span> &amp;&amp; top != <span class="str">'{'</span>) <span class="kw">return false</span>;
+    }
+    <span class="kw">return</span> stack.<span class="fn">isEmpty</span>();
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(n)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">07</span>
+          <span class="p-title">String to Integer (atoi)</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Skip whitespace, handle sign, parse digits, clamp to INT range on overflow.</div>
+          <pre><span class="kw">public int</span> <span class="fn">myAtoi</span>(<span class="type">String</span> s) {
+    <span class="type">int</span> i = <span class="num-c">0</span>, n = s.<span class="fn">length</span>(), sign = <span class="num-c">1</span>;
+    <span class="type">long</span> result = <span class="num-c">0</span>;
+    <span class="kw">while</span> (i &lt; n &amp;&amp; s.<span class="fn">charAt</span>(i) == <span class="str">' '</span>) i++;
+    <span class="kw">if</span> (i &lt; n &amp;&amp; (s.<span class="fn">charAt</span>(i) == <span class="str">'+'</span> || s.<span class="fn">charAt</span>(i) == <span class="str">'-'</span>))
+        sign = s.<span class="fn">charAt</span>(i++) == <span class="str">'+'</span> ? <span class="num-c">1</span> : -<span class="num-c">1</span>;
+    <span class="kw">while</span> (i &lt; n &amp;&amp; <span class="type">Character</span>.<span class="fn">isDigit</span>(s.<span class="fn">charAt</span>(i))) {
+        result = result * <span class="num-c">10</span> + (s.<span class="fn">charAt</span>(i++) - <span class="str">'0'</span>);
+        <span class="kw">if</span> (result * sign &gt;= <span class="type">Integer</span>.MAX_VALUE) <span class="kw">return</span> <span class="type">Integer</span>.MAX_VALUE;
+        <span class="kw">if</span> (result * sign &lt;= <span class="type">Integer</span>.MIN_VALUE) <span class="kw">return</span> <span class="type">Integer</span>.MIN_VALUE;
+    }
+    <span class="kw">return</span> (<span class="type">int</span>)(result * sign);
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">08</span>
+          <span class="p-title">Implement strStr()</span>
+          <span class="diff easy">Easy</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Use indexOf (O(n·m)). For interview, KMP is optimal but indexOf is acceptable for initial pass.</div>
+          <pre><span class="kw">public int</span> <span class="fn">strStr</span>(<span class="type">String</span> haystack, <span class="type">String</span> needle) {
+    <span class="kw">return</span> haystack.<span class="fn">indexOf</span>(needle);
+}
+
+<span class="cmt">// KMP - O(n+m) if asked</span>
+<span class="kw">public int</span> <span class="fn">strStrKMP</span>(<span class="type">String</span> haystack, <span class="type">String</span> needle) {
+    <span class="type">int</span> m = needle.<span class="fn">length</span>(), n = haystack.<span class="fn">length</span>();
+    <span class="kw">if</span> (m == <span class="num-c">0</span>) <span class="kw">return</span> <span class="num-c">0</span>;
+    <span class="type">int</span>[] lps = <span class="kw">new int</span>[m];
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">1</span>, k = <span class="num-c">0</span>; i &lt; m;) {
+        <span class="kw">if</span> (needle.<span class="fn">charAt</span>(i) == needle.<span class="fn">charAt</span>(k)) lps[i++] = ++k;
+        <span class="kw">else if</span> (k &gt; <span class="num-c">0</span>) k = lps[k - <span class="num-c">1</span>];
+        <span class="kw">else</span> i++;
+    }
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">0</span>, j = <span class="num-c">0</span>; i &lt; n;) {
+        <span class="kw">if</span> (haystack.<span class="fn">charAt</span>(i) == needle.<span class="fn">charAt</span>(j)) { i++; j++; }
+        <span class="kw">if</span> (j == m) <span class="kw">return</span> i - j;
+        <span class="kw">else if</span> (i &lt; n &amp;&amp; haystack.<span class="fn">charAt</span>(i) != needle.<span class="fn">charAt</span>(j))
+            j = j != <span class="num-c">0</span> ? lps[j - <span class="num-c">1</span>] : <span class="num-c">0</span>;
+        <span class="kw">if</span> (j == <span class="num-c">0</span> &amp;&amp; i &lt; n &amp;&amp; haystack.<span class="fn">charAt</span>(i) != needle.<span class="fn">charAt</span>(j)) i++;
+    }
+    <span class="kw">return</span> -<span class="num-c">1</span>;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n+m)</b> <span>Space:</span> <b>O(m)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">09</span>
+          <span class="p-title">Decode String</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Stack-based. Push current string and repeat count when '[' seen, pop and repeat on ']'.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public</span> <span class="type">String</span> <span class="fn">decodeString</span>(<span class="type">String</span> s) {
+    <span class="type">Deque</span>&lt;<span class="type">Integer</span>&gt; countStack = <span class="kw">new</span> <span class="type">ArrayDeque</span>&lt;&gt;();
+    <span class="type">Deque</span>&lt;<span class="type">StringBuilder</span>&gt; strStack = <span class="kw">new</span> <span class="type">ArrayDeque</span>&lt;&gt;();
+    <span class="type">StringBuilder</span> curr = <span class="kw">new</span> <span class="type">StringBuilder</span>();
+    <span class="type">int</span> k = <span class="num-c">0</span>;
+    <span class="kw">for</span> (<span class="type">char</span> c : s.<span class="fn">toCharArray</span>()) {
+        <span class="kw">if</span> (<span class="type">Character</span>.<span class="fn">isDigit</span>(c)) k = k * <span class="num-c">10</span> + (c - <span class="str">'0'</span>);
+        <span class="kw">else if</span> (c == <span class="str">'['</span>) { countStack.<span class="fn">push</span>(k); strStack.<span class="fn">push</span>(curr); k = <span class="num-c">0</span>; curr = <span class="kw">new</span> <span class="type">StringBuilder</span>(); }
+        <span class="kw">else if</span> (c == <span class="str">']'</span>) {
+            <span class="type">StringBuilder</span> prev = strStack.<span class="fn">pop</span>();
+            <span class="type">int</span> times = countStack.<span class="fn">pop</span>();
+            <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">0</span>; i &lt; times; i++) prev.<span class="fn">append</span>(curr);
+            curr = prev;
+        } <span class="kw">else</span> curr.<span class="fn">append</span>(c);
+    }
+    <span class="kw">return</span> curr.<span class="fn">toString</span>();
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n·k)</b> <span>Space:</span> <b>O(n)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">10</span>
+          <span class="p-title">Longest Repeating Character Replacement</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Sliding window. Window is valid if (window size - max freq char count) ≤ k.</div>
+          <pre><span class="kw">public int</span> <span class="fn">characterReplacement</span>(<span class="type">String</span> s, <span class="type">int</span> k) {
+    <span class="type">int</span>[] freq = <span class="kw">new int</span>[<span class="num-c">26</span>];
+    <span class="type">int</span> maxFreq = <span class="num-c">0</span>, l = <span class="num-c">0</span>, res = <span class="num-c">0</span>;
+    <span class="kw">for</span> (<span class="type">int</span> r = <span class="num-c">0</span>; r &lt; s.<span class="fn">length</span>(); r++) {
+        maxFreq = <span class="type">Math</span>.<span class="fn">max</span>(maxFreq, ++freq[s.<span class="fn">charAt</span>(r) - <span class="str">'A'</span>]);
+        <span class="kw">while</span> ((r - l + <span class="num-c">1</span>) - maxFreq &gt; k) freq[s.<span class="fn">charAt</span>(l++) - <span class="str">'A'</span>]--;
+        res = <span class="type">Math</span>.<span class="fn">max</span>(res, r - l + <span class="num-c">1</span>);
+    }
+    <span class="kw">return</span> res;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SLIDING WINDOW ===== -->
+    <div class="topic-section" id="sliding">
+      <div class="section-header">
+        <h2>Sliding Window / Two Pointers</h2>
+        <span class="badge">6 Problems</span>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">01</span>
+          <span class="p-title">Trapping Rain Water</span>
+          <span class="diff hard">Hard</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Two pointers. Water at position = min(maxLeft, maxRight) - height[i]. Move the shorter side inward.</div>
+          <pre><span class="kw">public int</span> <span class="fn">trap</span>(<span class="type">int</span>[] height) {
+    <span class="type">int</span> l = <span class="num-c">0</span>, r = height.length - <span class="num-c">1</span>;
+    <span class="type">int</span> maxL = <span class="num-c">0</span>, maxR = <span class="num-c">0</span>, water = <span class="num-c">0</span>;
+    <span class="kw">while</span> (l &lt; r) {
+        <span class="kw">if</span> (height[l] &lt; height[r]) {
+            maxL = <span class="type">Math</span>.<span class="fn">max</span>(maxL, height[l]);
+            water += maxL - height[l++];
+        } <span class="kw">else</span> {
+            maxR = <span class="type">Math</span>.<span class="fn">max</span>(maxR, height[r]);
+            water += maxR - height[r--];
+        }
+    }
+    <span class="kw">return</span> water;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">02</span>
+          <span class="p-title">Container With Most Water</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Two pointers. Move pointer with smaller height. Already solved in Arrays section (same solution).</div>
+          <pre><span class="kw">public int</span> <span class="fn">maxArea</span>(<span class="type">int</span>[] height) {
+    <span class="type">int</span> l = <span class="num-c">0</span>, r = height.length - <span class="num-c">1</span>, max = <span class="num-c">0</span>;
+    <span class="kw">while</span> (l &lt; r) {
+        max = <span class="type">Math</span>.<span class="fn">max</span>(max, <span class="type">Math</span>.<span class="fn">min</span>(height[l], height[r]) * (r - l));
+        <span class="kw">if</span> (height[l] &lt; height[r]) l++;
+        <span class="kw">else</span> r--;
+    }
+    <span class="kw">return</span> max;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">03</span>
+          <span class="p-title">Minimum Size Subarray Sum</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Sliding window. Expand right, shrink left while sum ≥ target. Track min length.</div>
+          <pre><span class="kw">public int</span> <span class="fn">minSubArrayLen</span>(<span class="type">int</span> target, <span class="type">int</span>[] nums) {
+    <span class="type">int</span> l = <span class="num-c">0</span>, sum = <span class="num-c">0</span>, min = <span class="type">Integer</span>.MAX_VALUE;
+    <span class="kw">for</span> (<span class="type">int</span> r = <span class="num-c">0</span>; r &lt; nums.length; r++) {
+        sum += nums[r];
+        <span class="kw">while</span> (sum &gt;= target) {
+            min = <span class="type">Math</span>.<span class="fn">min</span>(min, r - l + <span class="num-c">1</span>);
+            sum -= nums[l++];
+        }
+    }
+    <span class="kw">return</span> min == <span class="type">Integer</span>.MAX_VALUE ? <span class="num-c">0</span> : min;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">04</span>
+          <span class="p-title">Longest Substring Without Repeating Characters</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Same as in Strings section — sliding window with HashMap.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public int</span> <span class="fn">lengthOfLongestSubstring</span>(<span class="type">String</span> s) {
+    <span class="type">Map</span>&lt;<span class="type">Character</span>, <span class="type">Integer</span>&gt; map = <span class="kw">new</span> <span class="type">HashMap</span>&lt;&gt;();
+    <span class="type">int</span> max = <span class="num-c">0</span>, left = <span class="num-c">0</span>;
+    <span class="kw">for</span> (<span class="type">int</span> r = <span class="num-c">0</span>; r &lt; s.<span class="fn">length</span>(); r++) {
+        <span class="type">char</span> c = s.<span class="fn">charAt</span>(r);
+        <span class="kw">if</span> (map.<span class="fn">containsKey</span>(c)) left = <span class="type">Math</span>.<span class="fn">max</span>(left, map.<span class="fn">get</span>(c) + <span class="num-c">1</span>);
+        map.<span class="fn">put</span>(c, r);
+        max = <span class="type">Math</span>.<span class="fn">max</span>(max, r - left + <span class="num-c">1</span>);
+    }
+    <span class="kw">return</span> max;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(n)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">05</span>
+          <span class="p-title">Sliding Window Maximum</span>
+          <span class="diff hard">Hard</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Monotonic deque. Keep indices of decreasing elements. Front always has window max.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public int</span>[] <span class="fn">maxSlidingWindow</span>(<span class="type">int</span>[] nums, <span class="type">int</span> k) {
+    <span class="type">int</span>[] res = <span class="kw">new int</span>[nums.length - k + <span class="num-c">1</span>];
+    <span class="type">Deque</span>&lt;<span class="type">Integer</span>&gt; dq = <span class="kw">new</span> <span class="type">ArrayDeque</span>&lt;&gt;();
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">0</span>; i &lt; nums.length; i++) {
+        <span class="kw">while</span> (!dq.<span class="fn">isEmpty</span>() &amp;&amp; dq.<span class="fn">peekFirst</span>() &lt; i - k + <span class="num-c">1</span>) dq.<span class="fn">pollFirst</span>();
+        <span class="kw">while</span> (!dq.<span class="fn">isEmpty</span>() &amp;&amp; nums[dq.<span class="fn">peekLast</span>()] &lt; nums[i]) dq.<span class="fn">pollLast</span>();
+        dq.<span class="fn">offerLast</span>(i);
+        <span class="kw">if</span> (i &gt;= k - <span class="num-c">1</span>) res[i - k + <span class="num-c">1</span>] = nums[dq.<span class="fn">peekFirst</span>()];
+    }
+    <span class="kw">return</span> res;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(k)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">06</span>
+          <span class="p-title">Find All Anagrams in a String</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Fixed-size sliding window of length p. Compare frequency arrays at each position.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public</span> <span class="type">List</span>&lt;<span class="type">Integer</span>&gt; <span class="fn">findAnagrams</span>(<span class="type">String</span> s, <span class="type">String</span> p) {
+    <span class="type">List</span>&lt;<span class="type">Integer</span>&gt; res = <span class="kw">new</span> <span class="type">ArrayList</span>&lt;&gt;();
+    <span class="kw">if</span> (s.<span class="fn">length</span>() &lt; p.<span class="fn">length</span>()) <span class="kw">return</span> res;
+    <span class="type">int</span>[] pCount = <span class="kw">new int</span>[<span class="num-c">26</span>], sCount = <span class="kw">new int</span>[<span class="num-c">26</span>];
+    <span class="kw">for</span> (<span class="type">char</span> c : p.<span class="fn">toCharArray</span>()) pCount[c - <span class="str">'a'</span>]++;
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">0</span>; i &lt; s.<span class="fn">length</span>(); i++) {
+        sCount[s.<span class="fn">charAt</span>(i) - <span class="str">'a'</span>]++;
+        <span class="kw">if</span> (i &gt;= p.<span class="fn">length</span>()) sCount[s.<span class="fn">charAt</span>(i - p.<span class="fn">length</span>()) - <span class="str">'a'</span>]--;
+        <span class="kw">if</span> (<span class="type">Arrays</span>.<span class="fn">equals</span>(pCount, sCount)) res.<span class="fn">add</span>(i - p.<span class="fn">length</span>() + <span class="num-c">1</span>);
+    }
+    <span class="kw">return</span> res;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== LINKED LIST ===== -->
+    <div class="topic-section" id="linkedlist">
+      <div class="section-header">
+        <h2>Linked List</h2>
+        <span class="badge">8 Problems</span>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">01</span>
+          <span class="p-title">Reverse Linked List</span>
+          <span class="diff easy">Easy</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Iterative with prev/curr pointers. Reverse next pointer for each node.</div>
+          <pre><span class="kw">public</span> <span class="type">ListNode</span> <span class="fn">reverseList</span>(<span class="type">ListNode</span> head) {
+    <span class="type">ListNode</span> prev = <span class="kw">null</span>, curr = head;
+    <span class="kw">while</span> (curr != <span class="kw">null</span>) {
+        <span class="type">ListNode</span> next = curr.next;
+        curr.next = prev;
+        prev = curr;
+        curr = next;
+    }
+    <span class="kw">return</span> prev;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">02</span>
+          <span class="p-title">Merge Two Sorted Lists</span>
+          <span class="diff easy">Easy</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Dummy head node. Compare and attach smaller node. Append remaining list.</div>
+          <pre><span class="kw">public</span> <span class="type">ListNode</span> <span class="fn">mergeTwoLists</span>(<span class="type">ListNode</span> l1, <span class="type">ListNode</span> l2) {
+    <span class="type">ListNode</span> dummy = <span class="kw">new</span> <span class="type">ListNode</span>(<span class="num-c">0</span>), curr = dummy;
+    <span class="kw">while</span> (l1 != <span class="kw">null</span> &amp;&amp; l2 != <span class="kw">null</span>) {
+        <span class="kw">if</span> (l1.val &lt;= l2.val) { curr.next = l1; l1 = l1.next; }
+        <span class="kw">else</span> { curr.next = l2; l2 = l2.next; }
+        curr = curr.next;
+    }
+    curr.next = l1 != <span class="kw">null</span> ? l1 : l2;
+    <span class="kw">return</span> dummy.next;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n+m)</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">03</span>
+          <span class="p-title">Linked List Cycle</span>
+          <span class="diff easy">Easy</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Floyd's algorithm — fast pointer moves 2 steps, slow 1. If they meet, cycle exists.</div>
+          <pre><span class="kw">public boolean</span> <span class="fn">hasCycle</span>(<span class="type">ListNode</span> head) {
+    <span class="type">ListNode</span> slow = head, fast = head;
+    <span class="kw">while</span> (fast != <span class="kw">null</span> &amp;&amp; fast.next != <span class="kw">null</span>) {
+        slow = slow.next;
+        fast = fast.next.next;
+        <span class="kw">if</span> (slow == fast) <span class="kw">return true</span>;
+    }
+    <span class="kw">return false</span>;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">04</span>
+          <span class="p-title">Remove Nth Node From End</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Two pointers with n gap. When fast reaches end, slow is at node before the target.</div>
+          <pre><span class="kw">public</span> <span class="type">ListNode</span> <span class="fn">removeNthFromEnd</span>(<span class="type">ListNode</span> head, <span class="type">int</span> n) {
+    <span class="type">ListNode</span> dummy = <span class="kw">new</span> <span class="type">ListNode</span>(<span class="num-c">0</span>);
+    dummy.next = head;
+    <span class="type">ListNode</span> fast = dummy, slow = dummy;
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">0</span>; i &lt;= n; i++) fast = fast.next;
+    <span class="kw">while</span> (fast != <span class="kw">null</span>) { fast = fast.next; slow = slow.next; }
+    slow.next = slow.next.next;
+    <span class="kw">return</span> dummy.next;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">05</span>
+          <span class="p-title">LRU Cache</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> LinkedHashMap with access-order=true. On each get/put, move to end. Remove eldest entry when over capacity.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">class</span> <span class="type">LRUCache</span> <span class="kw">extends</span> <span class="type">LinkedHashMap</span>&lt;<span class="type">Integer</span>, <span class="type">Integer</span>&gt; {
+    <span class="kw">private int</span> capacity;
+    <span class="kw">public</span> <span class="fn">LRUCache</span>(<span class="type">int</span> capacity) {
+        <span class="kw">super</span>(capacity, <span class="num-c">0.75f</span>, <span class="kw">true</span>);
+        <span class="kw">this</span>.capacity = capacity;
+    }
+    <span class="kw">public int</span> <span class="fn">get</span>(<span class="type">int</span> key) {
+        <span class="kw">return</span> <span class="kw">super</span>.<span class="fn">getOrDefault</span>(key, -<span class="num-c">1</span>);
+    }
+    <span class="kw">public void</span> <span class="fn">put</span>(<span class="type">int</span> key, <span class="type">int</span> value) {
+        <span class="kw">super</span>.<span class="fn">put</span>(key, value);
+    }
+    <span class="kw">protected boolean</span> <span class="fn">removeEldestEntry</span>(<span class="type">Map.Entry</span>&lt;<span class="type">Integer</span>, <span class="type">Integer</span>&gt; eldest) {
+        <span class="kw">return</span> <span class="fn">size</span>() &gt; capacity;
+    }
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(1)</b> get/put <span>Space:</span> <b>O(capacity)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">06</span>
+          <span class="p-title">Add Two Numbers</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Simulate addition with carry. Create new node for each digit sum. Handle remaining carry.</div>
+          <pre><span class="kw">public</span> <span class="type">ListNode</span> <span class="fn">addTwoNumbers</span>(<span class="type">ListNode</span> l1, <span class="type">ListNode</span> l2) {
+    <span class="type">ListNode</span> dummy = <span class="kw">new</span> <span class="type">ListNode</span>(<span class="num-c">0</span>), curr = dummy;
+    <span class="type">int</span> carry = <span class="num-c">0</span>;
+    <span class="kw">while</span> (l1 != <span class="kw">null</span> || l2 != <span class="kw">null</span> || carry != <span class="num-c">0</span>) {
+        <span class="type">int</span> sum = carry;
+        <span class="kw">if</span> (l1 != <span class="kw">null</span>) { sum += l1.val; l1 = l1.next; }
+        <span class="kw">if</span> (l2 != <span class="kw">null</span>) { sum += l2.val; l2 = l2.next; }
+        carry = sum / <span class="num-c">10</span>;
+        curr.next = <span class="kw">new</span> <span class="type">ListNode</span>(sum % <span class="num-c">10</span>);
+        curr = curr.next;
+    }
+    <span class="kw">return</span> dummy.next;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(max(n,m))</b> <span>Space:</span> <b>O(max(n,m))</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">07</span>
+          <span class="p-title">Copy List with Random Pointer</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> HashMap old→new node. First pass create all nodes. Second pass set next and random pointers.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public</span> <span class="type">Node</span> <span class="fn">copyRandomList</span>(<span class="type">Node</span> head) {
+    <span class="type">Map</span>&lt;<span class="type">Node</span>, <span class="type">Node</span>&gt; map = <span class="kw">new</span> <span class="type">HashMap</span>&lt;&gt;();
+    <span class="type">Node</span> curr = head;
+    <span class="kw">while</span> (curr != <span class="kw">null</span>) { map.<span class="fn">put</span>(curr, <span class="kw">new</span> <span class="type">Node</span>(curr.val)); curr = curr.next; }
+    curr = head;
+    <span class="kw">while</span> (curr != <span class="kw">null</span>) {
+        map.<span class="fn">get</span>(curr).next = map.<span class="fn">get</span>(curr.next);
+        map.<span class="fn">get</span>(curr).random = map.<span class="fn">get</span>(curr.random);
+        curr = curr.next;
+    }
+    <span class="kw">return</span> map.<span class="fn">get</span>(head);
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(n)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">08</span>
+          <span class="p-title">Reverse Nodes in K Group</span>
+          <span class="diff hard">Hard</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Check if k nodes remain. Reverse k nodes. Recursively solve rest and connect.</div>
+          <pre><span class="kw">public</span> <span class="type">ListNode</span> <span class="fn">reverseKGroup</span>(<span class="type">ListNode</span> head, <span class="type">int</span> k) {
+    <span class="type">ListNode</span> curr = head;
+    <span class="type">int</span> count = <span class="num-c">0</span>;
+    <span class="kw">while</span> (curr != <span class="kw">null</span> &amp;&amp; count &lt; k) { curr = curr.next; count++; }
+    <span class="kw">if</span> (count &lt; k) <span class="kw">return</span> head;
+    <span class="type">ListNode</span> prev = <span class="fn">reverseKGroup</span>(curr, k);
+    curr = head;
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">0</span>; i &lt; k; i++) {
+        <span class="type">ListNode</span> next = curr.next;
+        curr.next = prev;
+        prev = curr;
+        curr = next;
+    }
+    <span class="kw">return</span> prev;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(n/k)</b> recursion</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== STACK ===== -->
+    <div class="topic-section" id="stack">
+      <div class="section-header">
+        <h2>Stack / Monotonic Stack</h2>
+        <span class="badge">6 Problems</span>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">01</span>
+          <span class="p-title">Min Stack</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Two stacks — one normal, one tracking minimum at each level. Push to minStack only if ≤ current min.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">class</span> <span class="type">MinStack</span> {
+    <span class="type">Deque</span>&lt;<span class="type">Integer</span>&gt; stack = <span class="kw">new</span> <span class="type">ArrayDeque</span>&lt;&gt;();
+    <span class="type">Deque</span>&lt;<span class="type">Integer</span>&gt; minStack = <span class="kw">new</span> <span class="type">ArrayDeque</span>&lt;&gt;();
+    <span class="kw">public void</span> <span class="fn">push</span>(<span class="type">int</span> val) {
+        stack.<span class="fn">push</span>(val);
+        <span class="kw">if</span> (minStack.<span class="fn">isEmpty</span>() || val &lt;= minStack.<span class="fn">peek</span>()) minStack.<span class="fn">push</span>(val);
+    }
+    <span class="kw">public void</span> <span class="fn">pop</span>() {
+        <span class="kw">if</span> (stack.<span class="fn">pop</span>().<span class="fn">equals</span>(minStack.<span class="fn">peek</span>())) minStack.<span class="fn">pop</span>();
+    }
+    <span class="kw">public int</span> <span class="fn">top</span>() { <span class="kw">return</span> stack.<span class="fn">peek</span>(); }
+    <span class="kw">public int</span> <span class="fn">getMin</span>() { <span class="kw">return</span> minStack.<span class="fn">peek</span>(); }
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(1)</b> all ops <span>Space:</span> <b>O(n)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">02</span>
+          <span class="p-title">Daily Temperatures</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Monotonic decreasing stack of indices. When warmer temp found, pop and compute gap.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public int</span>[] <span class="fn">dailyTemperatures</span>(<span class="type">int</span>[] temps) {
+    <span class="type">int</span>[] res = <span class="kw">new int</span>[temps.length];
+    <span class="type">Deque</span>&lt;<span class="type">Integer</span>&gt; stack = <span class="kw">new</span> <span class="type">ArrayDeque</span>&lt;&gt;();
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">0</span>; i &lt; temps.length; i++) {
+        <span class="kw">while</span> (!stack.<span class="fn">isEmpty</span>() &amp;&amp; temps[i] &gt; temps[stack.<span class="fn">peek</span>()]) {
+            <span class="type">int</span> idx = stack.<span class="fn">pop</span>();
+            res[idx] = i - idx;
+        }
+        stack.<span class="fn">push</span>(i);
+    }
+    <span class="kw">return</span> res;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(n)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">03</span>
+          <span class="p-title">Next Greater Element</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Monotonic stack. Process nums2, store next greater in map. Look up for each nums1 element.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public int</span>[] <span class="fn">nextGreaterElement</span>(<span class="type">int</span>[] nums1, <span class="type">int</span>[] nums2) {
+    <span class="type">Map</span>&lt;<span class="type">Integer</span>, <span class="type">Integer</span>&gt; map = <span class="kw">new</span> <span class="type">HashMap</span>&lt;&gt;();
+    <span class="type">Deque</span>&lt;<span class="type">Integer</span>&gt; stack = <span class="kw">new</span> <span class="type">ArrayDeque</span>&lt;&gt;();
+    <span class="kw">for</span> (<span class="type">int</span> num : nums2) {
+        <span class="kw">while</span> (!stack.<span class="fn">isEmpty</span>() &amp;&amp; stack.<span class="fn">peek</span>() &lt; num) map.<span class="fn">put</span>(stack.<span class="fn">pop</span>(), num);
+        stack.<span class="fn">push</span>(num);
+    }
+    <span class="type">int</span>[] res = <span class="kw">new int</span>[nums1.length];
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">0</span>; i &lt; nums1.length; i++) res[i] = map.<span class="fn">getOrDefault</span>(nums1[i], -<span class="num-c">1</span>);
+    <span class="kw">return</span> res;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n+m)</b> <span>Space:</span> <b>O(n)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">04</span>
+          <span class="p-title">Largest Rectangle in Histogram</span>
+          <span class="diff hard">Hard</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Monotonic increasing stack of indices. When smaller bar found, pop and compute max rectangle using popped bar as height.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public int</span> <span class="fn">largestRectangleArea</span>(<span class="type">int</span>[] heights) {
+    <span class="type">Deque</span>&lt;<span class="type">Integer</span>&gt; stack = <span class="kw">new</span> <span class="type">ArrayDeque</span>&lt;&gt;();
+    <span class="type">int</span> max = <span class="num-c">0</span>;
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">0</span>; i &lt;= heights.length; i++) {
+        <span class="type">int</span> h = i == heights.length ? <span class="num-c">0</span> : heights[i];
+        <span class="kw">while</span> (!stack.<span class="fn">isEmpty</span>() &amp;&amp; h &lt; heights[stack.<span class="fn">peek</span>()]) {
+            <span class="type">int</span> height = heights[stack.<span class="fn">pop</span>()];
+            <span class="type">int</span> width = stack.<span class="fn">isEmpty</span>() ? i : i - stack.<span class="fn">peek</span>() - <span class="num-c">1</span>;
+            max = <span class="type">Math</span>.<span class="fn">max</span>(max, height * width);
+        }
+        stack.<span class="fn">push</span>(i);
+    }
+    <span class="kw">return</span> max;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(n)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">05</span>
+          <span class="p-title">Valid Parentheses</span>
+          <span class="diff easy">Easy</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Same as Strings section. Stack to match brackets.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public boolean</span> <span class="fn">isValid</span>(<span class="type">String</span> s) {
+    <span class="type">Deque</span>&lt;<span class="type">Character</span>&gt; stack = <span class="kw">new</span> <span class="type">ArrayDeque</span>&lt;&gt;();
+    <span class="kw">for</span> (<span class="type">char</span> c : s.<span class="fn">toCharArray</span>()) {
+        <span class="kw">if</span> (c == <span class="str">'('</span> || c == <span class="str">'['</span> || c == <span class="str">'{'</span>) { stack.<span class="fn">push</span>(c); <span class="kw">continue</span>; }
+        <span class="kw">if</span> (stack.<span class="fn">isEmpty</span>()) <span class="kw">return false</span>;
+        <span class="type">char</span> top = stack.<span class="fn">pop</span>();
+        <span class="kw">if</span> ((c==<span class="str">')'</span> &amp;&amp; top!=<span class="str">'('</span>) || (c==<span class="str">']'</span> &amp;&amp; top!=<span class="str">'['</span>) || (c==<span class="str">'}'</span> &amp;&amp; top!=<span class="str">'{'</span>)) <span class="kw">return false</span>;
+    }
+    <span class="kw">return</span> stack.<span class="fn">isEmpty</span>();
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(n)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">06</span>
+          <span class="p-title">Simplify Path</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Split by '/', use stack. Push valid names, pop on '..', skip '.' and empty strings.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public</span> <span class="type">String</span> <span class="fn">simplifyPath</span>(<span class="type">String</span> path) {
+    <span class="type">Deque</span>&lt;<span class="type">String</span>&gt; stack = <span class="kw">new</span> <span class="type">ArrayDeque</span>&lt;&gt;();
+    <span class="kw">for</span> (<span class="type">String</span> part : path.<span class="fn">split</span>(<span class="str">"/"</span>)) {
+        <span class="kw">if</span> (part.<span class="fn">equals</span>(<span class="str">".."</span>)) { <span class="kw">if</span> (!stack.<span class="fn">isEmpty</span>()) stack.<span class="fn">pop</span>(); }
+        <span class="kw">else if</span> (!part.<span class="fn">isEmpty</span>() &amp;&amp; !part.<span class="fn">equals</span>(<span class="str">"."</span>)) stack.<span class="fn">push</span>(part);
+    }
+    <span class="type">StringBuilder</span> sb = <span class="kw">new</span> <span class="type">StringBuilder</span>();
+    <span class="kw">for</span> (<span class="type">String</span> s : stack) sb.<span class="fn">insert</span>(<span class="num-c">0</span>, <span class="str">"/"</span> + s);
+    <span class="kw">return</span> sb.<span class="fn">length</span>() == <span class="num-c">0</span> ? <span class="str">"/"</span> : sb.<span class="fn">toString</span>();
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(n)</b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== BINARY SEARCH ===== -->
+    <div class="topic-section" id="bsearch">
+      <div class="section-header">
+        <h2>Binary Search</h2>
+        <span class="badge">5 Problems</span>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">01</span>
+          <span class="p-title">Binary Search</span>
+          <span class="diff easy">Easy</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Standard binary search — mid = lo + (hi-lo)/2 to avoid overflow.</div>
+          <pre><span class="kw">public int</span> <span class="fn">search</span>(<span class="type">int</span>[] nums, <span class="type">int</span> target) {
+    <span class="type">int</span> lo = <span class="num-c">0</span>, hi = nums.length - <span class="num-c">1</span>;
+    <span class="kw">while</span> (lo &lt;= hi) {
+        <span class="type">int</span> mid = lo + (hi - lo) / <span class="num-c">2</span>;
+        <span class="kw">if</span> (nums[mid] == target) <span class="kw">return</span> mid;
+        <span class="kw">else if</span> (nums[mid] &lt; target) lo = mid + <span class="num-c">1</span>;
+        <span class="kw">else</span> hi = mid - <span class="num-c">1</span>;
+    }
+    <span class="kw">return</span> -<span class="num-c">1</span>;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(log n)</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">02</span>
+          <span class="p-title">Search in Rotated Sorted Array</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Binary search. Determine which half is sorted, then check if target falls in that half.</div>
+          <pre><span class="kw">public int</span> <span class="fn">search</span>(<span class="type">int</span>[] nums, <span class="type">int</span> target) {
+    <span class="type">int</span> lo = <span class="num-c">0</span>, hi = nums.length - <span class="num-c">1</span>;
+    <span class="kw">while</span> (lo &lt;= hi) {
+        <span class="type">int</span> mid = lo + (hi - lo) / <span class="num-c">2</span>;
+        <span class="kw">if</span> (nums[mid] == target) <span class="kw">return</span> mid;
+        <span class="kw">if</span> (nums[lo] &lt;= nums[mid]) {
+            <span class="kw">if</span> (nums[lo] &lt;= target &amp;&amp; target &lt; nums[mid]) hi = mid - <span class="num-c">1</span>;
+            <span class="kw">else</span> lo = mid + <span class="num-c">1</span>;
+        } <span class="kw">else</span> {
+            <span class="kw">if</span> (nums[mid] &lt; target &amp;&amp; target &lt;= nums[hi]) lo = mid + <span class="num-c">1</span>;
+            <span class="kw">else</span> hi = mid - <span class="num-c">1</span>;
+        }
+    }
+    <span class="kw">return</span> -<span class="num-c">1</span>;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(log n)</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">03</span>
+          <span class="p-title">Find Minimum in Rotated Sorted Array</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Binary search. If mid > right, minimum is in right half. Otherwise in left half.</div>
+          <pre><span class="kw">public int</span> <span class="fn">findMin</span>(<span class="type">int</span>[] nums) {
+    <span class="type">int</span> lo = <span class="num-c">0</span>, hi = nums.length - <span class="num-c">1</span>;
+    <span class="kw">while</span> (lo &lt; hi) {
+        <span class="type">int</span> mid = lo + (hi - lo) / <span class="num-c">2</span>;
+        <span class="kw">if</span> (nums[mid] &gt; nums[hi]) lo = mid + <span class="num-c">1</span>;
+        <span class="kw">else</span> hi = mid;
+    }
+    <span class="kw">return</span> nums[lo];
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(log n)</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">04</span>
+          <span class="p-title">Median of Two Sorted Arrays</span>
+          <span class="diff hard">Hard</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Binary search on the smaller array. Partition both so left halves together have half total elements. Find correct partition where max_left ≤ min_right.</div>
+          <pre><span class="kw">public double</span> <span class="fn">findMedianSortedArrays</span>(<span class="type">int</span>[] nums1, <span class="type">int</span>[] nums2) {
+    <span class="kw">if</span> (nums1.length &gt; nums2.length) <span class="kw">return</span> <span class="fn">findMedianSortedArrays</span>(nums2, nums1);
+    <span class="type">int</span> m = nums1.length, n = nums2.length;
+    <span class="type">int</span> lo = <span class="num-c">0</span>, hi = m;
+    <span class="kw">while</span> (lo &lt;= hi) {
+        <span class="type">int</span> i = lo + (hi - lo) / <span class="num-c">2</span>;
+        <span class="type">int</span> j = (m + n + <span class="num-c">1</span>) / <span class="num-c">2</span> - i;
+        <span class="type">int</span> maxL1 = i == <span class="num-c">0</span> ? <span class="type">Integer</span>.MIN_VALUE : nums1[i - <span class="num-c">1</span>];
+        <span class="type">int</span> minR1 = i == m ? <span class="type">Integer</span>.MAX_VALUE : nums1[i];
+        <span class="type">int</span> maxL2 = j == <span class="num-c">0</span> ? <span class="type">Integer</span>.MIN_VALUE : nums2[j - <span class="num-c">1</span>];
+        <span class="type">int</span> minR2 = j == n ? <span class="type">Integer</span>.MAX_VALUE : nums2[j];
+        <span class="kw">if</span> (maxL1 &lt;= minR2 &amp;&amp; maxL2 &lt;= minR1) {
+            <span class="kw">if</span> ((m + n) % <span class="num-c">2</span> == <span class="num-c">0</span>)
+                <span class="kw">return</span> (<span class="type">Math</span>.<span class="fn">max</span>(maxL1, maxL2) + <span class="type">Math</span>.<span class="fn">min</span>(minR1, minR2)) / <span class="num-c">2.0</span>;
+            <span class="kw">return</span> <span class="type">Math</span>.<span class="fn">max</span>(maxL1, maxL2);
+        } <span class="kw">else if</span> (maxL1 &gt; minR2) hi = i - <span class="num-c">1</span>;
+        <span class="kw">else</span> lo = i + <span class="num-c">1</span>;
+    }
+    <span class="kw">return</span> <span class="num-c">0.0</span>;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(log(min(m,n)))</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">05</span>
+          <span class="p-title">Koko Eating Bananas</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Binary search on eating speed. For each speed k, check if all piles can be finished in h hours.</div>
+          <pre><span class="kw">public int</span> <span class="fn">minEatingSpeed</span>(<span class="type">int</span>[] piles, <span class="type">int</span> h) {
+    <span class="type">int</span> lo = <span class="num-c">1</span>, hi = <span class="num-c">0</span>;
+    <span class="kw">for</span> (<span class="type">int</span> p : piles) hi = <span class="type">Math</span>.<span class="fn">max</span>(hi, p);
+    <span class="kw">while</span> (lo &lt; hi) {
+        <span class="type">int</span> mid = lo + (hi - lo) / <span class="num-c">2</span>;
+        <span class="type">int</span> hours = <span class="num-c">0</span>;
+        <span class="kw">for</span> (<span class="type">int</span> p : piles) hours += (p + mid - <span class="num-c">1</span>) / mid;
+        <span class="kw">if</span> (hours &lt;= h) hi = mid;
+        <span class="kw">else</span> lo = mid + <span class="num-c">1</span>;
+    }
+    <span class="kw">return</span> lo;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n log m)</b> <span>Space:</span> <b>O(1)</b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TREES ===== -->
+    <div class="topic-section" id="trees">
+      <div class="section-header">
+        <h2>Trees &amp; Binary Trees</h2>
+        <span class="badge">8 Problems</span>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">01</span>
+          <span class="p-title">Maximum Depth of Binary Tree</span>
+          <span class="diff easy">Easy</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> DFS recursion. Depth = 1 + max(left depth, right depth).</div>
+          <pre><span class="kw">public int</span> <span class="fn">maxDepth</span>(<span class="type">TreeNode</span> root) {
+    <span class="kw">if</span> (root == <span class="kw">null</span>) <span class="kw">return</span> <span class="num-c">0</span>;
+    <span class="kw">return</span> <span class="num-c">1</span> + <span class="type">Math</span>.<span class="fn">max</span>(<span class="fn">maxDepth</span>(root.left), <span class="fn">maxDepth</span>(root.right));
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(h)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">02</span>
+          <span class="p-title">Binary Tree Level Order Traversal</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> BFS with queue. Process each level completely, track size before processing.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public</span> <span class="type">List</span>&lt;<span class="type">List</span>&lt;<span class="type">Integer</span>&gt;&gt; <span class="fn">levelOrder</span>(<span class="type">TreeNode</span> root) {
+    <span class="type">List</span>&lt;<span class="type">List</span>&lt;<span class="type">Integer</span>&gt;&gt; res = <span class="kw">new</span> <span class="type">ArrayList</span>&lt;&gt;();
+    <span class="kw">if</span> (root == <span class="kw">null</span>) <span class="kw">return</span> res;
+    <span class="type">Queue</span>&lt;<span class="type">TreeNode</span>&gt; q = <span class="kw">new</span> <span class="type">LinkedList</span>&lt;&gt;();
+    q.<span class="fn">offer</span>(root);
+    <span class="kw">while</span> (!q.<span class="fn">isEmpty</span>()) {
+        <span class="type">List</span>&lt;<span class="type">Integer</span>&gt; level = <span class="kw">new</span> <span class="type">ArrayList</span>&lt;&gt;();
+        <span class="type">int</span> size = q.<span class="fn">size</span>();
+        <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">0</span>; i &lt; size; i++) {
+            <span class="type">TreeNode</span> node = q.<span class="fn">poll</span>();
+            level.<span class="fn">add</span>(node.val);
+            <span class="kw">if</span> (node.left != <span class="kw">null</span>) q.<span class="fn">offer</span>(node.left);
+            <span class="kw">if</span> (node.right != <span class="kw">null</span>) q.<span class="fn">offer</span>(node.right);
+        }
+        res.<span class="fn">add</span>(level);
+    }
+    <span class="kw">return</span> res;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(n)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">03</span>
+          <span class="p-title">Lowest Common Ancestor of Binary Tree</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> DFS. If current node is p or q, return it. LCA is where left and right both return non-null.</div>
+          <pre><span class="kw">public</span> <span class="type">TreeNode</span> <span class="fn">lowestCommonAncestor</span>(<span class="type">TreeNode</span> root, <span class="type">TreeNode</span> p, <span class="type">TreeNode</span> q) {
+    <span class="kw">if</span> (root == <span class="kw">null</span> || root == p || root == q) <span class="kw">return</span> root;
+    <span class="type">TreeNode</span> left = <span class="fn">lowestCommonAncestor</span>(root.left, p, q);
+    <span class="type">TreeNode</span> right = <span class="fn">lowestCommonAncestor</span>(root.right, p, q);
+    <span class="kw">if</span> (left != <span class="kw">null</span> &amp;&amp; right != <span class="kw">null</span>) <span class="kw">return</span> root;
+    <span class="kw">return</span> left != <span class="kw">null</span> ? left : right;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(h)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">04</span>
+          <span class="p-title">Validate Binary Search Tree</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> DFS with min/max bounds. Each node must be within (min, max) range passed from parent.</div>
+          <pre><span class="kw">public boolean</span> <span class="fn">isValidBST</span>(<span class="type">TreeNode</span> root) {
+    <span class="kw">return</span> <span class="fn">validate</span>(root, <span class="type">Long</span>.MIN_VALUE, <span class="type">Long</span>.MAX_VALUE);
+}
+<span class="kw">private boolean</span> <span class="fn">validate</span>(<span class="type">TreeNode</span> node, <span class="type">long</span> min, <span class="type">long</span> max) {
+    <span class="kw">if</span> (node == <span class="kw">null</span>) <span class="kw">return true</span>;
+    <span class="kw">if</span> (node.val &lt;= min || node.val &gt;= max) <span class="kw">return false</span>;
+    <span class="kw">return</span> <span class="fn">validate</span>(node.left, min, node.val) &amp;&amp; <span class="fn">validate</span>(node.right, node.val, max);
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(h)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">05</span>
+          <span class="p-title">Construct Binary Tree from Preorder and Inorder</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Preorder[0] = root. Find root in inorder to split left/right subtrees. Recurse.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public</span> <span class="type">TreeNode</span> <span class="fn">buildTree</span>(<span class="type">int</span>[] preorder, <span class="type">int</span>[] inorder) {
+    <span class="type">Map</span>&lt;<span class="type">Integer</span>, <span class="type">Integer</span>&gt; map = <span class="kw">new</span> <span class="type">HashMap</span>&lt;&gt;();
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">0</span>; i &lt; inorder.length; i++) map.<span class="fn">put</span>(inorder[i], i);
+    <span class="kw">return</span> <span class="fn">build</span>(preorder, <span class="num-c">0</span>, preorder.length - <span class="num-c">1</span>, <span class="num-c">0</span>, inorder.length - <span class="num-c">1</span>, map);
+}
+<span class="kw">private</span> <span class="type">TreeNode</span> <span class="fn">build</span>(<span class="type">int</span>[] pre, <span class="type">int</span> ps, <span class="type">int</span> pe, <span class="type">int</span> is, <span class="type">int</span> ie, <span class="type">Map</span>&lt;<span class="type">Integer</span>,<span class="type">Integer</span>&gt; map) {
+    <span class="kw">if</span> (ps &gt; pe) <span class="kw">return null</span>;
+    <span class="type">TreeNode</span> root = <span class="kw">new</span> <span class="type">TreeNode</span>(pre[ps]);
+    <span class="type">int</span> idx = map.<span class="fn">get</span>(pre[ps]);
+    <span class="type">int</span> leftSize = idx - is;
+    root.left = <span class="fn">build</span>(pre, ps+<span class="num-c">1</span>, ps+leftSize, is, idx-<span class="num-c">1</span>, map);
+    root.right = <span class="fn">build</span>(pre, ps+leftSize+<span class="num-c">1</span>, pe, idx+<span class="num-c">1</span>, ie, map);
+    <span class="kw">return</span> root;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(n)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">06</span>
+          <span class="p-title">Serialize and Deserialize Binary Tree</span>
+          <span class="diff hard">Hard</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> BFS serialize to comma-separated string with "null" for missing nodes. BFS deserialize using queue.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public</span> <span class="type">String</span> <span class="fn">serialize</span>(<span class="type">TreeNode</span> root) {
+    <span class="kw">if</span> (root == <span class="kw">null</span>) <span class="kw">return</span> <span class="str">""</span>;
+    <span class="type">StringBuilder</span> sb = <span class="kw">new</span> <span class="type">StringBuilder</span>();
+    <span class="type">Queue</span>&lt;<span class="type">TreeNode</span>&gt; q = <span class="kw">new</span> <span class="type">LinkedList</span>&lt;&gt;();
+    q.<span class="fn">offer</span>(root);
+    <span class="kw">while</span> (!q.<span class="fn">isEmpty</span>()) {
+        <span class="type">TreeNode</span> node = q.<span class="fn">poll</span>();
+        <span class="kw">if</span> (node == <span class="kw">null</span>) { sb.<span class="fn">append</span>(<span class="str">"null,"</span>); <span class="kw">continue</span>; }
+        sb.<span class="fn">append</span>(node.val).<span class="fn">append</span>(<span class="str">","</span>);
+        q.<span class="fn">offer</span>(node.left); q.<span class="fn">offer</span>(node.right);
+    }
+    <span class="kw">return</span> sb.<span class="fn">toString</span>();
+}
+<span class="kw">public</span> <span class="type">TreeNode</span> <span class="fn">deserialize</span>(<span class="type">String</span> data) {
+    <span class="kw">if</span> (data.<span class="fn">isEmpty</span>()) <span class="kw">return null</span>;
+    <span class="type">String</span>[] vals = data.<span class="fn">split</span>(<span class="str">","</span>);
+    <span class="type">TreeNode</span> root = <span class="kw">new</span> <span class="type">TreeNode</span>(<span class="type">Integer</span>.<span class="fn">parseInt</span>(vals[<span class="num-c">0</span>]));
+    <span class="type">Queue</span>&lt;<span class="type">TreeNode</span>&gt; q = <span class="kw">new</span> <span class="type">LinkedList</span>&lt;&gt;();
+    q.<span class="fn">offer</span>(root);
+    <span class="type">int</span> i = <span class="num-c">1</span>;
+    <span class="kw">while</span> (!q.<span class="fn">isEmpty</span>()) {
+        <span class="type">TreeNode</span> node = q.<span class="fn">poll</span>();
+        <span class="kw">if</span> (!vals[i].<span class="fn">equals</span>(<span class="str">"null"</span>)) { node.left = <span class="kw">new</span> <span class="type">TreeNode</span>(<span class="type">Integer</span>.<span class="fn">parseInt</span>(vals[i])); q.<span class="fn">offer</span>(node.left); }
+        i++;
+        <span class="kw">if</span> (!vals[i].<span class="fn">equals</span>(<span class="str">"null"</span>)) { node.right = <span class="kw">new</span> <span class="type">TreeNode</span>(<span class="type">Integer</span>.<span class="fn">parseInt</span>(vals[i])); q.<span class="fn">offer</span>(node.right); }
+        i++;
+    }
+    <span class="kw">return</span> root;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(n)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">07</span>
+          <span class="p-title">Path Sum</span>
+          <span class="diff easy">Easy</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> DFS. Subtract node value. At leaf, check if remaining sum == 0.</div>
+          <pre><span class="kw">public boolean</span> <span class="fn">hasPathSum</span>(<span class="type">TreeNode</span> root, <span class="type">int</span> targetSum) {
+    <span class="kw">if</span> (root == <span class="kw">null</span>) <span class="kw">return false</span>;
+    <span class="kw">if</span> (root.left == <span class="kw">null</span> &amp;&amp; root.right == <span class="kw">null</span>) <span class="kw">return</span> root.val == targetSum;
+    <span class="kw">return</span> <span class="fn">hasPathSum</span>(root.left, targetSum - root.val)
+        || <span class="fn">hasPathSum</span>(root.right, targetSum - root.val);
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(h)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">08</span>
+          <span class="p-title">Diameter of Binary Tree</span>
+          <span class="diff easy">Easy</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> DFS. At each node, diameter passing through = left depth + right depth. Track global max.</div>
+          <pre><span class="kw">private int</span> maxDiameter = <span class="num-c">0</span>;
+<span class="kw">public int</span> <span class="fn">diameterOfBinaryTree</span>(<span class="type">TreeNode</span> root) {
+    <span class="fn">depth</span>(root);
+    <span class="kw">return</span> maxDiameter;
+}
+<span class="kw">private int</span> <span class="fn">depth</span>(<span class="type">TreeNode</span> node) {
+    <span class="kw">if</span> (node == <span class="kw">null</span>) <span class="kw">return</span> <span class="num-c">0</span>;
+    <span class="type">int</span> l = <span class="fn">depth</span>(node.left), r = <span class="fn">depth</span>(node.right);
+    maxDiameter = <span class="type">Math</span>.<span class="fn">max</span>(maxDiameter, l + r);
+    <span class="kw">return</span> <span class="num-c">1</span> + <span class="type">Math</span>.<span class="fn">max</span>(l, r);
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n)</b> <span>Space:</span> <b>O(h)</b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== GRAPHS ===== -->
+    <div class="topic-section" id="graphs">
+      <div class="section-header">
+        <h2>Graphs</h2>
+        <span class="badge">5 Problems</span>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">01</span>
+          <span class="p-title">Number of Islands</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> DFS from each unvisited '1' cell. Sink the island (mark as '0') to avoid revisiting. Count DFS calls.</div>
+          <pre><span class="kw">public int</span> <span class="fn">numIslands</span>(<span class="type">char</span>[][] grid) {
+    <span class="type">int</span> count = <span class="num-c">0</span>;
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">0</span>; i &lt; grid.length; i++)
+        <span class="kw">for</span> (<span class="type">int</span> j = <span class="num-c">0</span>; j &lt; grid[<span class="num-c">0</span>].length; j++)
+            <span class="kw">if</span> (grid[i][j] == <span class="str">'1'</span>) { <span class="fn">dfs</span>(grid, i, j); count++; }
+    <span class="kw">return</span> count;
+}
+<span class="kw">private void</span> <span class="fn">dfs</span>(<span class="type">char</span>[][] g, <span class="type">int</span> i, <span class="type">int</span> j) {
+    <span class="kw">if</span> (i &lt; <span class="num-c">0</span> || i &gt;= g.length || j &lt; <span class="num-c">0</span> || j &gt;= g[<span class="num-c">0</span>].length || g[i][j] != <span class="str">'1'</span>) <span class="kw">return</span>;
+    g[i][j] = <span class="str">'0'</span>;
+    <span class="fn">dfs</span>(g,i+<span class="num-c">1</span>,j); <span class="fn">dfs</span>(g,i-<span class="num-c">1</span>,j); <span class="fn">dfs</span>(g,i,j+<span class="num-c">1</span>); <span class="fn">dfs</span>(g,i,j-<span class="num-c">1</span>);
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(m·n)</b> <span>Space:</span> <b>O(m·n)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">02</span>
+          <span class="p-title">Clone Graph</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> DFS with HashMap (old node → clone). Create clone on first visit, then recursively clone neighbors.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="type">Map</span>&lt;<span class="type">Node</span>, <span class="type">Node</span>&gt; cloneMap = <span class="kw">new</span> <span class="type">HashMap</span>&lt;&gt;();
+<span class="kw">public</span> <span class="type">Node</span> <span class="fn">cloneGraph</span>(<span class="type">Node</span> node) {
+    <span class="kw">if</span> (node == <span class="kw">null</span>) <span class="kw">return null</span>;
+    <span class="kw">if</span> (cloneMap.<span class="fn">containsKey</span>(node)) <span class="kw">return</span> cloneMap.<span class="fn">get</span>(node);
+    <span class="type">Node</span> clone = <span class="kw">new</span> <span class="type">Node</span>(node.val);
+    cloneMap.<span class="fn">put</span>(node, clone);
+    <span class="kw">for</span> (<span class="type">Node</span> neighbor : node.neighbors)
+        clone.neighbors.<span class="fn">add</span>(<span class="fn">cloneGraph</span>(neighbor));
+    <span class="kw">return</span> clone;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(V+E)</b> <span>Space:</span> <b>O(V)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">03</span>
+          <span class="p-title">Course Schedule</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Topological sort (Kahn's BFS). Build indegree map. Process nodes with indegree 0. Cycle exists if not all nodes processed.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public boolean</span> <span class="fn">canFinish</span>(<span class="type">int</span> numCourses, <span class="type">int</span>[][] prerequisites) {
+    <span class="type">int</span>[] indegree = <span class="kw">new int</span>[numCourses];
+    <span class="type">List</span>&lt;<span class="type">List</span>&lt;<span class="type">Integer</span>&gt;&gt; adj = <span class="kw">new</span> <span class="type">ArrayList</span>&lt;&gt;();
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">0</span>; i &lt; numCourses; i++) adj.<span class="fn">add</span>(<span class="kw">new</span> <span class="type">ArrayList</span>&lt;&gt;());
+    <span class="kw">for</span> (<span class="type">int</span>[] p : prerequisites) { adj.<span class="fn">get</span>(p[<span class="num-c">1</span>]).<span class="fn">add</span>(p[<span class="num-c">0</span>]); indegree[p[<span class="num-c">0</span>]]++; }
+    <span class="type">Queue</span>&lt;<span class="type">Integer</span>&gt; q = <span class="kw">new</span> <span class="type">LinkedList</span>&lt;&gt;();
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">0</span>; i &lt; numCourses; i++) <span class="kw">if</span> (indegree[i] == <span class="num-c">0</span>) q.<span class="fn">offer</span>(i);
+    <span class="type">int</span> count = <span class="num-c">0</span>;
+    <span class="kw">while</span> (!q.<span class="fn">isEmpty</span>()) {
+        <span class="type">int</span> node = q.<span class="fn">poll</span>(); count++;
+        <span class="kw">for</span> (<span class="type">int</span> next : adj.<span class="fn">get</span>(node)) <span class="kw">if</span> (--indegree[next] == <span class="num-c">0</span>) q.<span class="fn">offer</span>(next);
+    }
+    <span class="kw">return</span> count == numCourses;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(V+E)</b> <span>Space:</span> <b>O(V+E)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">04</span>
+          <span class="p-title">Pacific Atlantic Water Flow</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Reverse BFS/DFS from ocean borders. Cells reachable from both oceans are answers.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public</span> <span class="type">List</span>&lt;<span class="type">List</span>&lt;<span class="type">Integer</span>&gt;&gt; <span class="fn">pacificAtlantic</span>(<span class="type">int</span>[][] heights) {
+    <span class="type">int</span> m = heights.length, n = heights[<span class="num-c">0</span>].length;
+    <span class="type">boolean</span>[][] pac = <span class="kw">new boolean</span>[m][n], atl = <span class="kw">new boolean</span>[m][n];
+    <span class="type">Queue</span>&lt;<span class="type">int</span>[]&gt; pq = <span class="kw">new</span> <span class="type">LinkedList</span>&lt;&gt;(), aq = <span class="kw">new</span> <span class="type">LinkedList</span>&lt;&gt;();
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">0</span>; i &lt; m; i++) { pq.<span class="fn">offer</span>(<span class="kw">new int</span>[]{i,<span class="num-c">0</span>}); pac[i][<span class="num-c">0</span>]=<span class="kw">true</span>; aq.<span class="fn">offer</span>(<span class="kw">new int</span>[]{i,n-<span class="num-c">1</span>}); atl[i][n-<span class="num-c">1</span>]=<span class="kw">true</span>; }
+    <span class="kw">for</span> (<span class="type">int</span> j = <span class="num-c">0</span>; j &lt; n; j++) { pq.<span class="fn">offer</span>(<span class="kw">new int</span>[]{<span class="num-c">0</span>,j}); pac[<span class="num-c">0</span>][j]=<span class="kw">true</span>; aq.<span class="fn">offer</span>(<span class="kw">new int</span>[]{m-<span class="num-c">1</span>,j}); atl[m-<span class="num-c">1</span>][j]=<span class="kw">true</span>; }
+    <span class="fn">bfs</span>(heights, pq, pac, m, n); <span class="fn">bfs</span>(heights, aq, atl, m, n);
+    <span class="type">List</span>&lt;<span class="type">List</span>&lt;<span class="type">Integer</span>&gt;&gt; res = <span class="kw">new</span> <span class="type">ArrayList</span>&lt;&gt;();
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">0</span>; i &lt; m; i++) <span class="kw">for</span> (<span class="type">int</span> j = <span class="num-c">0</span>; j &lt; n; j++) <span class="kw">if</span> (pac[i][j] &amp;&amp; atl[i][j]) res.<span class="fn">add</span>(<span class="type">Arrays</span>.<span class="fn">asList</span>(i,j));
+    <span class="kw">return</span> res;
+}
+<span class="kw">private void</span> <span class="fn">bfs</span>(<span class="type">int</span>[][] h, <span class="type">Queue</span>&lt;<span class="type">int</span>[]&gt; q, <span class="type">boolean</span>[][] vis, <span class="type">int</span> m, <span class="type">int</span> n) {
+    <span class="type">int</span>[][] dirs = {{<span class="num-c">0</span>,<span class="num-c">1</span>},{<span class="num-c">0</span>,-<span class="num-c">1</span>},{<span class="num-c">1</span>,<span class="num-c">0</span>},{-<span class="num-c">1</span>,<span class="num-c">0</span>}};
+    <span class="kw">while</span> (!q.<span class="fn">isEmpty</span>()) {
+        <span class="type">int</span>[] cell = q.<span class="fn">poll</span>();
+        <span class="kw">for</span> (<span class="type">int</span>[] d : dirs) {
+            <span class="type">int</span> r = cell[<span class="num-c">0</span>]+d[<span class="num-c">0</span>], c = cell[<span class="num-c">1</span>]+d[<span class="num-c">1</span>];
+            <span class="kw">if</span> (r&gt;=<span class="num-c">0</span> &amp;&amp; r&lt;m &amp;&amp; c&gt;=<span class="num-c">0</span> &amp;&amp; c&lt;n &amp;&amp; !vis[r][c] &amp;&amp; h[r][c]&gt;=h[cell[<span class="num-c">0</span>]][cell[<span class="num-c">1</span>]]) {
+                vis[r][c]=<span class="kw">true</span>; q.<span class="fn">offer</span>(<span class="kw">new int</span>[]{r,c});
+            }
+        }
+    }
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(m·n)</b> <span>Space:</span> <b>O(m·n)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">05</span>
+          <span class="p-title">Word Ladder</span>
+          <span class="diff hard">Hard</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> BFS level by level. At each step, try changing each character to find words in wordList. Count levels.</div>
+          <pre><span class="kw">import</span> java.util.*;
+<span class="kw">public int</span> <span class="fn">ladderLength</span>(<span class="type">String</span> beginWord, <span class="type">String</span> endWord, <span class="type">List</span>&lt;<span class="type">String</span>&gt; wordList) {
+    <span class="type">Set</span>&lt;<span class="type">String</span>&gt; wordSet = <span class="kw">new</span> <span class="type">HashSet</span>&lt;&gt;(wordList);
+    <span class="kw">if</span> (!wordSet.<span class="fn">contains</span>(endWord)) <span class="kw">return</span> <span class="num-c">0</span>;
+    <span class="type">Queue</span>&lt;<span class="type">String</span>&gt; q = <span class="kw">new</span> <span class="type">LinkedList</span>&lt;&gt;();
+    q.<span class="fn">offer</span>(beginWord);
+    <span class="type">int</span> steps = <span class="num-c">1</span>;
+    <span class="kw">while</span> (!q.<span class="fn">isEmpty</span>()) {
+        <span class="type">int</span> size = q.<span class="fn">size</span>();
+        <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">0</span>; i &lt; size; i++) {
+            <span class="type">char</span>[] word = q.<span class="fn">poll</span>().<span class="fn">toCharArray</span>();
+            <span class="kw">for</span> (<span class="type">int</span> j = <span class="num-c">0</span>; j &lt; word.length; j++) {
+                <span class="type">char</span> orig = word[j];
+                <span class="kw">for</span> (<span class="type">char</span> c = <span class="str">'a'</span>; c &lt;= <span class="str">'z'</span>; c++) {
+                    word[j] = c;
+                    <span class="type">String</span> next = <span class="kw">new</span> <span class="type">String</span>(word);
+                    <span class="kw">if</span> (next.<span class="fn">equals</span>(endWord)) <span class="kw">return</span> steps + <span class="num-c">1</span>;
+                    <span class="kw">if</span> (wordSet.<span class="fn">remove</span>(next)) q.<span class="fn">offer</span>(next);
+                }
+                word[j] = orig;
+            }
+        }
+        steps++;
+    }
+    <span class="kw">return</span> <span class="num-c">0</span>;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n·m·26)</b> <span>Space:</span> <b>O(n)</b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== DP ===== -->
+    <div class="topic-section" id="dp">
+      <div class="section-header">
+        <h2>Dynamic Programming</h2>
+        <span class="badge">2 Problems</span>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">01</span>
+          <span class="p-title">Coin Change</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Bottom-up DP. dp[i] = min coins to make amount i. For each coin, update dp[i] = min(dp[i], dp[i-coin]+1).</div>
+          <pre><span class="kw">public int</span> <span class="fn">coinChange</span>(<span class="type">int</span>[] coins, <span class="type">int</span> amount) {
+    <span class="type">int</span>[] dp = <span class="kw">new int</span>[amount + <span class="num-c">1</span>];
+    <span class="type">Arrays</span>.<span class="fn">fill</span>(dp, amount + <span class="num-c">1</span>);
+    dp[<span class="num-c">0</span>] = <span class="num-c">0</span>;
+    <span class="kw">for</span> (<span class="type">int</span> coin : coins)
+        <span class="kw">for</span> (<span class="type">int</span> i = coin; i &lt;= amount; i++)
+            dp[i] = <span class="type">Math</span>.<span class="fn">min</span>(dp[i], dp[i - coin] + <span class="num-c">1</span>);
+    <span class="kw">return</span> dp[amount] &gt; amount ? -<span class="num-c">1</span> : dp[amount];
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n·amount)</b> <span>Space:</span> <b>O(amount)</b></div>
+        </div>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header" onclick="toggle(this)">
+          <span class="p-num">02</span>
+          <span class="p-title">Longest Increasing Subsequence</span>
+          <span class="diff medium">Medium</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="problem-body">
+          <div class="approach"><strong>Approach:</strong> Binary search + patience sorting. Maintain tails array. Binary search for insertion position of each element.</div>
+          <pre><span class="kw">public int</span> <span class="fn">lengthOfLIS</span>(<span class="type">int</span>[] nums) {
+    <span class="type">int</span>[] tails = <span class="kw">new int</span>[nums.length];
+    <span class="type">int</span> size = <span class="num-c">0</span>;
+    <span class="kw">for</span> (<span class="type">int</span> num : nums) {
+        <span class="type">int</span> lo = <span class="num-c">0</span>, hi = size;
+        <span class="kw">while</span> (lo &lt; hi) {
+            <span class="type">int</span> mid = lo + (hi - lo) / <span class="num-c">2</span>;
+            <span class="kw">if</span> (tails[mid] &lt; num) lo = mid + <span class="num-c">1</span>;
+            <span class="kw">else</span> hi = mid;
+        }
+        tails[lo] = num;
+        <span class="kw">if</span> (lo == size) size++;
+    }
+    <span class="kw">return</span> size;
+}
+
+<span class="cmt">// Classic O(n²) DP if asked</span>
+<span class="kw">public int</span> <span class="fn">lengthOfLIS_DP</span>(<span class="type">int</span>[] nums) {
+    <span class="type">int</span>[] dp = <span class="kw">new int</span>[nums.length];
+    <span class="type">Arrays</span>.<span class="fn">fill</span>(dp, <span class="num-c">1</span>);
+    <span class="type">int</span> max = <span class="num-c">1</span>;
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num-c">1</span>; i &lt; nums.length; i++) {
+        <span class="kw">for</span> (<span class="type">int</span> j = <span class="num-c">0</span>; j &lt; i; j++)
+            <span class="kw">if</span> (nums[j] &lt; nums[i]) dp[i] = <span class="type">Math</span>.<span class="fn">max</span>(dp[i], dp[j] + <span class="num-c">1</span>);
+        max = <span class="type">Math</span>.<span class="fn">max</span>(max, dp[i]);
+    }
+    <span class="kw">return</span> max;
+}</pre>
+          <div class="complexity"><span>Time:</span> <b>O(n log n)</b> <span>Space:</span> <b>O(n)</b></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.topic-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+function toggle(header) {
+  const card = header.parentElement;
+  card.classList.toggle('open');
+}
+</script>
+</body>
+</html>
