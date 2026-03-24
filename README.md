@@ -203,7 +203,7 @@ open DSA-Topics.html
 
 - Pure HTML / CSS / JavaScript — zero dependencies
 - JetBrains Mono font for clean code display
-- Syntax highlighted Java code blocks
+- Syntax-highlighted Java code blocks
 - Responsive sidebar navigation
 - Dark theme UI
 
