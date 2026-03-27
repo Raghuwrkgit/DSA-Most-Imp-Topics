@@ -10,7 +10,7 @@
 
 <br/>
 
-> **Solve these 60 problems and you'll cover 90% of patterns used in FAANG interviews.**
+> **Solve these 60 problems, and you'll cover 90% of patterns used in FAANG interviews.**
 
 </div>
 
@@ -227,7 +227,7 @@ BE in Information Science Engineering
 [![GitHub](https://img.shields.io/badge/GitHub-Raghuwrkgit-181717?style=flat-square&logo=github)](https://github.com/Raghuwrkgit)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-raghunandanams-0077B5?style=flat-square&logo=linkedin)](https://linkedin.com/in/raghunandanams)
 
---
+---
 
 ## ⭐ Show Some Love
 
